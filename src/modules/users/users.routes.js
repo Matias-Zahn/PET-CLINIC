@@ -7,7 +7,7 @@ import {
    register,
    updateUser,
 } from "./users.controller.js";
-import { validateExistUser } from "./users.middleware.js";
+import { protectRoute, validateExistUser } from "./users.middleware.js";
 
 export const userRoutes = express.Router();
 
@@ -18,7 +18,7 @@ userRoutes.get("/", findAllUser);
 
 userRoutes
    .route("/:id")
-   .all(validateExistUser)
+   .all(validateExistUser, protectRoute)
    .get(findOneUser)
    .patch(updateUser)
    .delete(deleteUser);

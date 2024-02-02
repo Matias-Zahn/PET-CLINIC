@@ -42,7 +42,8 @@ export const login = catchAsync(async (req, res, next) => {
 
    const userByEmail = await UserService.findUserByEmail(userData.email);
 
-   if (!userByEmail) return new AppError("This account does not exist", 404);
+   if (!userByEmail)
+      return next(new AppError("This account does not exist", 404));
 
    const isCorrectPassword = await verifyPassword(
       userData.password,
@@ -50,7 +51,7 @@ export const login = catchAsync(async (req, res, next) => {
    );
 
    if (!isCorrectPassword)
-      return new AppError("Incorrect email or password", 401);
+      return next(new AppError("Incorrect email or password", 401));
 
    const token = await generatejwt(userByEmail.id);
 
