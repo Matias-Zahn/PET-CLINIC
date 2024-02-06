@@ -60,7 +60,7 @@ const User = sequelize.define(
       },
 
       passwordChangedAt: {
-         type: DataTypes.STRING(),
+         type: DataTypes.DATE(),
          allowNull: true,
       },
 

@@ -18,7 +18,7 @@ export class UserService {
             id: id,
          },
          attributes: {
-            exclude: ["status", "updatedAt", "createdAt", "password"],
+            exclude: ["updatedAt", "createdAt"],
          },
       });
    }

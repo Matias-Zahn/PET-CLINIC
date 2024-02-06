@@ -48,7 +48,44 @@ export const protectRoute = catchAsync(async (req, res, next) => {
          new AppError("The owner of this token is not longer available", 401)
       );
 
+   //4.1 Validar si el usuario cambio la contraseña recientemente
+
+   if (user.passwordChangedAt) {
+      const changeTimeStamp = parseInt(user.passwordChangedAt.getTime() / 1000);
+
+      if (decoded.iat < changeTimeStamp) {
+         return next(
+            new AppError(
+               "User recently changed password! Please login again",
+               401
+            )
+         );
+      }
+   }
+
    //5. Adjuntar al dueño del token a la request para entablar diferentes acciones, como denegar la actualizacion de datos que no correspondan con su ID.
    req.sessionUser = user;
    next();
 });
+
+export const protectAccountOwner = catchAsync(async (req, res, next) => {
+   const { sessionUser, user } = req;
+
+   if (user.id !== sessionUser.id)
+      return next(new AppError("You do not own this account", 401));
+
+   next();
+});
+
+export const restrictTo = (...roles) => {
+   return (req, res, next) => {
+      const { sessionUser } = req;
+
+      if (roles.includes(sessionUser.role))
+         return next(
+            new AppError("You don have permmision to perform this action", 403)
+         );
+
+      next();
+   };
+};

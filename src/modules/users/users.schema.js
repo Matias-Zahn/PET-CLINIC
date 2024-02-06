@@ -43,6 +43,23 @@ const loginSchema = z.object({
       .max(255),
 });
 
+const changePasswordSchema = z.object({
+   currentPassword: z
+      .string({
+         invalid_type_error: "Password must be a string",
+         required_error: "Password is required",
+      })
+      .min(8)
+      .max(255),
+   newPassword: z
+      .string({
+         invalid_type_error: "Password must be a string",
+         required_error: "Password is required",
+      })
+      .min(8)
+      .max(255),
+});
+
 export function validateUser(data) {
    const result = registerSchema.safeParse(data);
 
@@ -88,5 +105,21 @@ export function validateLoginUser(data) {
       hasError,
       errorMessages,
       userData,
+   };
+}
+
+export function validateChangePassword(data) {
+   const result = changePasswordSchema.safeParse(data);
+
+   const {
+      hasError,
+      errorMessages,
+      data: passwordData,
+   } = extractValidationData(result);
+
+   return {
+      hasError,
+      errorMessages,
+      passwordData,
    };
 }

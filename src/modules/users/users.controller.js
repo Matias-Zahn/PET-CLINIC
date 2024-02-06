@@ -1,4 +1,5 @@
 import {
+   validateChangePassword,
    validateLoginUser,
    validatePartialUser,
    validateUser,
@@ -7,7 +8,10 @@ import { UserService } from "./users.service.js";
 import { catchAsync } from "../../common/errors/catchAsync.js";
 import { generatejwt } from "../../config/plugins/generate-jwt.js";
 import { AppError } from "../../common/errors/appError.js";
-import { verifyPassword } from "../../config/plugins/encrypt-password.js";
+import {
+   handleCryptPassword,
+   verifyPassword,
+} from "../../config/plugins/encrypt-password.js";
 
 // REGISTRO DE USUARIOS
 
@@ -102,4 +106,43 @@ export const deleteUser = catchAsync(async (req, res, next) => {
    await UserService.deleteUser(user);
 
    return res.status(204).json(null);
+});
+
+export const changePassword = catchAsync(async (req, res, next) => {
+   const { sessionUser } = req;
+
+   const { errorMessages, hasError, passwordData } = validateChangePassword(
+      req.body
+   );
+
+   const { newPassword, currentPassword } = passwordData;
+
+   if (hasError)
+      return res.status(422).json({
+         status: "error",
+         message: errorMessages,
+      });
+
+   if (currentPassword === newPassword)
+      return next(new AppError("The password cannot be equals", 400));
+
+   console.log(sessionUser.password);
+   const isCorrectPassword = await verifyPassword(
+      currentPassword,
+      sessionUser.password
+   );
+
+   if (!isCorrectPassword)
+      return next(new AppError(" Incorrect Password", 401));
+
+   const encriptedNewPassword = await handleCryptPassword(newPassword);
+
+   await UserService.updateUser(sessionUser, {
+      password: encriptedNewPassword,
+      passwordChangedAt: new Date(),
+   });
+
+   res.status(200).json({
+      message: "The password was updated successfully",
+   });
 });
