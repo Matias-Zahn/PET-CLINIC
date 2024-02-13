@@ -5,7 +5,7 @@ const MedicSchema = z.object({
     dni: z.string().min(5).max(20),
     name: z.string().min(3).max(60),
     surname: z.string().min(3).max(60),
-    speciality: z.string().min(3).max(60),
+    speciality: z.array(z.string()),
 });
 
 export function validateMedic(data) {

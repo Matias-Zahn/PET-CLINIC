@@ -21,7 +21,7 @@ const Medic = sequelize.define("medics", {
         allowNull: false,
     },
     speciality: {
-        type: DataTypes.STRING(60),
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: false,
     },
     status: {
