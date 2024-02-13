@@ -1,3 +1,4 @@
+import Appointment from "../appoiments/appointments.model.js";
 import Medic from "./medics.model.js";
 
 export class MedicService {
@@ -10,6 +11,15 @@ export class MedicService {
             where: {
                 status: true,
             },
+
+            include: [
+                {
+                    model: Appointment,
+                    where: {
+                        status: "pending",
+                    },
+                },
+            ],
         });
     }
 
@@ -19,6 +29,12 @@ export class MedicService {
                 status: true,
                 id: id,
             },
+
+            include: [
+                {
+                    model: Appointment,
+                },
+            ],
         });
     }
 

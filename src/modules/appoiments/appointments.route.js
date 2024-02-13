@@ -1,10 +1,22 @@
 import express from "express";
-import { scheduleAppointment } from "./appointments.controller.js";
+import {
+    deleteAppointment,
+    findAllAppointment,
+    findOneAppointment,
+    scheduleAppointment,
+    updateAppointment,
+} from "./appointments.controller.js";
+import { validateExistAppointment } from "./appointments.middleware.js";
 
 export const appointmentRoutes = express.Router();
 
-// appoimentRoutes.get('/', findAllAppointments)
+appointmentRoutes.get("/", findAllAppointment);
 
 appointmentRoutes.post("/schedule-appointment", scheduleAppointment);
 
-// appoimentRoutes.route('/:id').get(findOneAppointment).patch(updateAppointment).delete(deleteAppointment)
+appointmentRoutes
+    .route("/:id")
+    .all(validateExistAppointment)
+    .get(findOneAppointment)
+    .patch(updateAppointment)
+    .delete(deleteAppointment);

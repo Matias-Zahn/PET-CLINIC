@@ -4,6 +4,7 @@ import { validateAppointment } from "./appointments.schema.js";
 import { AppError } from "../../common/errors/appError.js";
 import { MedicService } from "../medics/medics.service.js";
 import { AppointmentService } from "./appointments.service.js";
+import moment from "moment-timezone";
 
 export const scheduleAppointment = catchAsync(async (req, res, next) => {
     const { hasError, errorMessages, appointmentData } = validateAppointment(
@@ -53,4 +54,49 @@ export const scheduleAppointment = catchAsync(async (req, res, next) => {
     );
 
     return res.status(201).json(appointmentCreated);
+});
+
+export const findAllAppointment = catchAsync(async (req, res, next) => {
+    const appointments = await AppointmentService.findAllAppointment();
+
+    return res.status(200).json(appointments);
+});
+
+export const findOneAppointment = catchAsync(async (req, res, next) => {
+    const { appointment } = req;
+
+    return res.status(200).json(appointment);
+});
+
+export const updateAppointment = catchAsync(async (req, res, next) => {
+    const { appointment } = req;
+
+    await AppointmentService.updateAppointment(appointment);
+
+    res.status(201).json({
+        message: "The appointment was updated succesfully",
+    });
+});
+
+export const deleteAppointment = catchAsync(async (req, res, next) => {
+    const { appointment } = req;
+
+    console.log(appointment);
+
+    const cancellAppointment = await AppointmentService.cancellByTime(
+        appointment.medicId,
+        appointment.id
+    );
+
+    if (cancellAppointment)
+        return next(
+            new AppError(
+                "To cancel this appointment it is necessary to do so 1 hour in advance",
+                409
+            )
+        );
+
+    await AppointmentService.deleteAppointment(appointment);
+
+    res.status(204).json(null);
 });

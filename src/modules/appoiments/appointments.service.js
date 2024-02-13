@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import Appointment from "./appointments.model.js";
 import moment from "moment-timezone";
+import Medic from "../medics/medics.model.js";
 
 export class AppointmentService {
     static async createAppointment(data) {
@@ -10,19 +11,28 @@ export class AppointmentService {
     static async findAllAppointment() {
         return await Appointment.findAll({
             where: {
-                status: !"cancelled",
+                status: "pending",
             },
+
+            include: [
+                {
+                    model: Medic,
+                },
+            ],
         });
     }
 
     static async findOneAppointment(id) {
         return await Appointment.findOne({
             where: {
-                status: !"cancelled",
+                status: "pending",
                 id: id,
             },
-
-            raw: true,
+            include: [
+                {
+                    model: Medic,
+                },
+            ],
         });
     }
 
@@ -50,5 +60,37 @@ export class AppointmentService {
         });
 
         return conflictExists > 0; // Retorna true si hay conflicto, false si no lo hay
+    }
+
+    static async updateAppointment(appointment) {
+        return await appointment.update({
+            status: "completed",
+        });
+    }
+
+    static async deleteAppointment(appointment) {
+        return await appointment.update({
+            status: "cancelled",
+        });
+    }
+
+    static async cancellByTime(medicId, id) {
+        const date = moment().tz("US/Eastern");
+
+        const initialDate = date.clone().subtract(60, "minutes");
+        const finalDate = date.clone().add(60, "minutes");
+
+        const compareDates = await Appointment.findOne({
+            where: {
+                id: id,
+                status: "pending",
+                medicId: medicId,
+                startTime: {
+                    [Op.between]: [initialDate, finalDate],
+                },
+            },
+        });
+
+        return compareDates;
     }
 }
