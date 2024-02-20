@@ -20,7 +20,6 @@ const registerSchema = z.object({
 
    dni: z.string().min(8).max(15),
    gender: z.enum(["male", "female", "other"]),
-   role: z.enum(["client", "developer"]),
    birthdate: z.string({
       invalid_type_error: " birthdate must be a string",
       required_error: "birthdate is required",

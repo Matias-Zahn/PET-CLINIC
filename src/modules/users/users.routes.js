@@ -13,10 +13,11 @@ import {
    protectRoute,
    validateExistUser,
 } from "./users.middleware.js";
+import { uploadFile } from "../../config/plugins/upload-files.js";
 
 export const userRoutes = express.Router();
 
-userRoutes.post("/register", register);
+userRoutes.route("/register").post(uploadFile("photo"), register);
 userRoutes.post("/login", login);
 
 userRoutes.use(protectRoute);

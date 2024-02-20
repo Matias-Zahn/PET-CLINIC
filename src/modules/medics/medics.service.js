@@ -18,6 +18,7 @@ export class MedicService {
                     where: {
                         status: "pending",
                     },
+                    required: false,
                 },
             ],
         });
